@@ -1,0 +1,27 @@
+{
+    "name": "outeredge/edge-magento-module-configurableimport",
+    "type": "magento-module",
+    "description": "Configurable Import Module by outer/edge",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "outer/edge",
+            "email": "support@outeredgeuk.com"
+        }
+    ],
+    "require": {
+        "magento-hackathon/magento-composer-installer": "*"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:outeredge/edge-magento-module-configurableimport.git"
+        }
+    ],
+    "extra": {
+        "map": [
+            ["app/code/local/Edge/ConfigurableImport", "app/code/local/Edge/ConfigurableImport"],
+            ["app/etc/modules/Edge_ConfigurableImport.xml", "app/etc/modules/Edge_ConfigurableImport.xml"]
+        ]
+    }
+}

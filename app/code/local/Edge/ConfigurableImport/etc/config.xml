@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Edge_ConfigurableImport>
+            <version>1.0.0</version>
+        </Edge_ConfigurableImport>
+    </modules>
+    <global>
+        <blocks>
+            <configurableimport>
+                <class>Edge_ConfigurableImport_Block</class>
+            </configurableimport>
+        </blocks>
+        <helpers>
+            <configurableimport>
+                <class>Edge_ConfigurableImport_Helper</class>
+            </configurableimport>
+        </helpers>
+    </global>
+    <admin>
+        <routers>
+            <configurableimport>
+                <use>admin</use>
+                <args>
+                    <module>Edge_ConfigurableImport</module>
+                    <frontName>configurableimport</frontName>
+                </args>
+            </configurableimport>
+        </routers>
+    </admin>
+    <adminhtml>
+        <menu>
+            <edge>
+                <title>outer/edge</title>
+                <sort_order>10</sort_order>
+                <children>
+                    <configurableimport module="configurableimport">
+                        <title>Configurable Import</title>
+                        <sort_order>20</sort_order>
+                        <action>configurableimport/admin</action>
+                    </configurableimport>
+                </children>
+            </edge>
+        </menu>
+    </adminhtml>
+</config>
