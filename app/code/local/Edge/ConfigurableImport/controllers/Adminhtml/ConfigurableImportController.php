@@ -1,6 +1,6 @@
 <?php
 
-class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_Action
+class Edge_ConfigurableImport_Adminhtml_ConfigurableImportController extends Mage_Adminhtml_Controller_Action
 {
     protected $_eavSetup;
 
@@ -20,17 +20,17 @@ class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_
             ->_addContent($this->getLayout()->createBlock('configurableimport/adminhtml_import'))
             ->renderLayout();
     }
-    
+
     public function importAction()
     {
         $this->_eavSetup = new Mage_Eav_Model_Entity_Setup('core_setup');
         $this->_db = Mage::getSingleton('core/resource')->getConnection('core_read');
-        
+
         if (isset($_FILES['csv']) && $_FILES['csv']['error'] == UPLOAD_ERR_OK && is_uploaded_file($_FILES['csv']['tmp_name'])){
-            
+
             // Get the attribute ids and options
             $configurableAttributes = $this->_setupAttributes();
-            
+
             $csv = fopen($_FILES['csv']['tmp_name'], 'r');
             $headers = fgetcsv($csv);
 
@@ -38,21 +38,21 @@ class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_
             foreach ($headers as $key=>$col){
                 $columns[$col] = $key;
             }
-            
+
             $defaults = $this->_getDefaults();
-            
+
             $success = 0;
             $failed = 0;
-            
+
             // Array for storing relationship data
             $configurables = array();
-            
+
             $simpleSkuIncrement = 1;
 
             while (($row = fgetcsv($csv, 1000)) !== false) {
-                
+
                 $product = Mage::getModel('catalog/product');
-                
+
                 $isSimple = $row[$columns['sku']] === "" ? true : false;
                 if ($isSimple){
                     // No SKU so probably a simple product
@@ -62,19 +62,19 @@ class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_
                 } else {
                     $product->setData($defaults);
                 }
-                
+
                 foreach ($columns as $attribute=>$key){
                     if (!$product->getData($attribute)){
 
                         // Add Option Values if they don't exist
                         if ($isSimple && array_key_exists($attribute, $configurableAttributes)){
                             if (!array_key_exists($row[$key], $configurableAttributes[$attribute]['options'])){
-                                
+
                                 $this->_eavSetup->addAttributeOption(array(
                                     'attribute_id' => $configurableAttributes[$attribute]['attribute_id'],
                                     'value' => array('new_option' => array($row[$key]))
                                 ));
-                                
+
                                 $optionsUpdated = array();
                                 $query = "SELECT * FROM `eav_attribute_option` `o` INNER JOIN `eav_attribute_option_value` `v` ON `o`.`option_id` = `v`.`option_id` WHERE `attribute_id` = " . $configurableAttributes[$attribute]['attribute_id'];
                                 $results = $this->_db->query($query);
@@ -83,7 +83,7 @@ class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_
                                 }
                                 $configurableAttributes[$attribute]['options'] = $optionsUpdated;
                             }
-                            
+
                             $product->setData($attribute, $configurableAttributes[$attribute]['options'][$row[$key]]);
 
                         } else {
@@ -91,7 +91,7 @@ class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_
                         }
                     }
                 }
-                
+
                 try {
                     if (!$isSimple){
                         $configurables[$row[$columns['sku']]] = array();
@@ -101,20 +101,20 @@ class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_
                         $product->setSku($product->getSku() . '-' . $simpleSkuIncrement);
                         $simpleSkuIncrement++;
                     }
-                    
+
                     $product->save();
-                    
+
                     if ($isSimple){
                         $configurables[$data['sku']][] = $product->getId();
                     }
-                    
+
                     $success++;
                 } catch (Exception $e) {
                     Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
                     $failed++;
                 }
             }
-            
+
             if ($success > 0){
                 Mage::getSingleton('adminhtml/session')->addSuccess($success . ' products created.');
             }
@@ -122,50 +122,50 @@ class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_
                 Mage::getSingleton('adminhtml/session')->addError($failed . ' products failed.');
             }
         }
-        
+
         $this->associateConfigurablesToSimples($configurables, $configurableAttributes['ids']);
-        
+
         $this->_redirect('*/*/');
         return;
     }
-    
+
     public function associateConfigurablesToSimples($configurables, $configurableAttributes)
     {
         foreach ($configurables as $sku => $simples){
             $configurable = Mage::getModel('catalog/product')->loadByAttribute('sku', $sku);
-            
+
             $configurable->setCanSaveConfigurableAttributes(true);
-            
+
             $configurable->getTypeInstance()->setUsedProductAttributeIds($configurableAttributes);
-            
+
             $attributes = $configurable->getTypeInstance()->getConfigurableAttributesAsArray();
             foreach($attributes as $key => $value) {
                 $attributes[$key]['label'] = $value['frontend_label'];
             }
-            
+
             $configurable->setConfigurableAttributesData($attributes);
             $configurable->setCanSaveConfigurableAttributes(true);
             $configurable->setCanSaveCustomOptions(true);
-            
+
             $associated = array();
             foreach ($simples as $simple){
                 parse_str("position=", $associated[$simple]);
             }
             $configurable->setConfigurableProductsData($associated, $configurable);
-            
+
             $configurable->save();
         }
     }
-    
+
     protected function _setupAttributes()
     {
         $configurableAttributes = array('ids' => array());
-        
+
         $attributes = $this->getRequest()->getParam('attribute');
         foreach ($attributes as $code){
-            
+
             $options = array();
-            
+
             // Load the attribute
             $attribute = Mage::getSingleton('eav/config')->getAttribute('catalog_product', $code);
             if (!$attribute->getId()){
@@ -185,15 +185,15 @@ class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_
                     'user_defined'      => true,
                     'visible_on_front'  => true
                 ));
-                
+
                 $eavAttribute = new Mage_Eav_Model_Mysql4_Entity_Attribute();
                 $configurableAttributes[$code] = array(
                     'attribute_id'  => $eavAttribute->getIdByCode('catalog_product', $code),
                     'options'       => $options
                 );
-                
+
                 Mage::getSingleton('adminhtml/session')->addSuccess('Attribute "' . $code . '" has been created.');
-            } 
+            }
             else {
                 if ($attribute->usesSource()){
                     foreach ($attribute->getSource()->getAllOptions(false) as $option){
@@ -208,10 +208,10 @@ class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_
 
             $configurableAttributes['ids'][] = $configurableAttributes[$code]['attribute_id'];
         }
-        
+
         return $configurableAttributes;
     }
-    
+
     protected function _getDefaults()
     {
         $defaults = array(
@@ -228,7 +228,7 @@ class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_
                 'qty'           => 100
             )
         );
-        
+
         return $defaults;
     }
 }
