@@ -1,36 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <menu>
-        <system>
+        <edge>
+            <title>outer/edge</title>
+            <sort_order>10</sort_order>
             <children>
-                <convert>
-                    <children>
-                        <configurableimport module="configurableimport">
-                            <title>Import - Configurable Products</title>
-                            <sort_order>7</sort_order>
-                            <action>adminhtml/adminhtml_import/index</action>
-                        </configurableimport>
-                    </children>
-                </convert>
+                <configurableimport module="configurableimport">
+                    <title>Configurable Import</title>
+                    <sort_order>20</sort_order>
+                    <action>configurableimport/admin</action>
+                </configurableimport>
             </children>
-        </system>
+        </edge>
     </menu>
     <acl>
         <resources>
             <admin>
                 <children>
-                    <system>
+                    <edge>
                         <children>
-                            <convert>
-                                <children>
-                                    <configurableimport translate="title">
-                                        <title>Import - Configurable Products</title>
-                                        <sort_order>7</sort_order>
-                                    </configurableimport>
-                                </children>
-                            </convert>
+                            <configurableimport translate="title">
+                                <title>Configurable Product Import</title>
+                                <sort_order>20</sort_order>
+                            </configurableimport>
                         </children>
-                    </system>
+                    </edge>
                 </children>
             </admin>
         </resources>

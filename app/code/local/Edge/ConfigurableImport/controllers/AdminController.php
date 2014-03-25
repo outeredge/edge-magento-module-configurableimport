@@ -1,6 +1,6 @@
 <?php
 
-class Edge_ConfigurableImport_Adminhtml_ConfigurableImportController extends Mage_Adminhtml_Controller_Action
+class Edge_ConfigurableImport_AdminController extends Mage_Adminhtml_Controller_Action
 {
     protected $_eavSetup;
 

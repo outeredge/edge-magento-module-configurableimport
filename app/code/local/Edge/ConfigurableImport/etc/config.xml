@@ -19,13 +19,13 @@
     </global>
     <admin>
         <routers>
-            <adminhtml>
+            <configurableimport>
+                <use>admin</use>
                 <args>
-                    <modules>
-                        <Edge_ConfigurableImport after="Mage_Adminhtml">Edge_ConfigurableImport</Edge_ConfigurableImport>
-                    </modules>
+                    <module>Edge_ConfigurableImport</module>
+                    <frontName>configurableimport</frontName>
                 </args>
-            </adminhtml>
+            </configurableimport>
         </routers>
     </admin>
 </config>
