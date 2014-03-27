@@ -6,7 +6,7 @@
                 <convert>
                     <children>
                         <configurableimport module="configurableimport">
-                            <title>Configurable Import</title>
+                            <title>Import - Configurable Products</title>
                             <sort_order>7</sort_order>
                             <action>configurableimport/admin</action>
                         </configurableimport>
